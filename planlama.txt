@@ -1,0 +1,31 @@
+----PROJE MİMARİSİ----
+
+amiral_batti/
+├── server/
+│   └── server.py          # AWS'de çalışacak, konsol uygulaması
+├── client/
+│   ├── main.py            # Giriş noktası
+│   ├── network.py         # Sunucuyla TCP iletişimi
+│   ├── game_logic.py      # Oyun kuralları
+│   └── ui/
+│       ├── start_screen.py    # Başlangıç ekranı
+│       ├── game_screen.py     # Oyun tahtası (PyQt5)
+│       └── end_screen.py      # Bitiş ekranı
+├── requirements.txt
+└── README.md
+
+----OYUN AKIŞI----
+Oyuncu 1 bağlanır → Sunucu bekler
+Oyuncu 2 bağlanır → Oyun başlar
+
+Her tur:
+  1. Aktif oyuncu koordinat seçer (istemci)
+  2. Sunucu hamlesi işler
+  3. Sonucu (isabet/ıska) her iki istemciye gönderir
+  4. Tüm gemiler batmışsa → kazanan ilan edilir
+
+----GELİŞTİRME PLANI----
+Aşama 1 — Sunucu → TCP socket, 2 oyuncu bekleme, hamle yönetimi
+Aşama 2 — İstemci ağ katmanı → Sunucuya bağlanma, mesaj alma/gönderme
+Aşama 3 — PyQt5 UI → Başlangıç → Gemi yerleştirme → Oyun → Bitiş ekranları
+Aşama 4 — AWS deployment → EC2 instance açma, sunucuyu çalıştırma  
