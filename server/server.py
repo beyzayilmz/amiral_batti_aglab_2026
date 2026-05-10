@@ -36,7 +36,7 @@ class BattleshipServer:
             client_socket, address = server_socket.accept()
             print(f"Yeni bağlantı: {address}")
 
-            if len(self.clients) <=  MAX_PLAYERS:
+            if len(self.clients) >=  MAX_PLAYERS:
                 client_socket.send("FULL\n".encode()) #clienta oyun dolu mesajı gönder
                 client_socket.close()
                 continue
@@ -57,19 +57,19 @@ class BattleshipServer:
         while len(self.clients) < MAX_PLAYERS:
             #pass düzeltme: cpu yorar sleep ile beklicez
             time.sleep(1)
-            with self.lock:
-                if not self.game_started and len(self.clients) == MAX_PLAYERS:
-                    self.game_started = True
-                    self.broadcast("GAME_START") #oyun başladı mesajı gönder
+        with self.lock:
+            if not self.game_started and len(self.clients) == MAX_PLAYERS:
+                self.game_started = True
+                self.broadcast("GAME_START") #oyun başladı mesajı gönder
 
-            while True:
-                try:
-                    message = client_socket.recv(1024).decode()
-                    if not message:
-                        break
-                    self.process_message(player_id, message) 
-                except: 
+        while True:
+            try:
+                message = client_socket.recv(1024).decode()
+                if not message:
                     break
+                self.process_msg(player_id, message) 
+            except: 
+                break
             print(f"Oyuncu {player_id} bağlantısı kesildi.")
             if client_socket in self.clients:
                 self.clients.remove(client_socket)
@@ -111,12 +111,15 @@ class BattleshipServer:
         elif command == "READY":
             result = self.game_state.confirm_placement(player_id)
             if result:
-                self.send_private_msg(result, "READY_SUCCESS")
+                self.send_private_msg(player_id, "READY_SUCCESS")
                 if self.game_state.phase == "battle":
                     self.broadcast("BATTLE_START")        
 
+if __name__ == "__main__":
+    server = BattleshipServer()
+    server.start()
 
-    #mesaj gönderme fonksiyonu
+    '''#mesaj gönderme fonksiyonu
     def send(self, sock, msg:dict): #bir istemciye mesaj 
         try:
             data = json.dumps(msg) + "\n"
@@ -144,5 +147,5 @@ class BattleshipServer:
                     return json.loads(line.decode())
             except Exception as e:
                 print(f"Error receiving message: {e}")
-                return None            
+                return None       '''     
                  
