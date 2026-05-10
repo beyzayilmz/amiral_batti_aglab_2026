@@ -10,6 +10,7 @@ import os
 import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import game_logic
+import time
 
 HOST = '0.0.0.0' # Tüm ağ arayüzlerinde dinle
 PORT = 5555 # İstemcilerin bağlanacağı port numarası
@@ -34,7 +35,7 @@ class BattleshipServer:
             client_socket, address = server_socket.accept()
             print(f"Yeni bağlantı: {address}")
 
-            if len(self.clients) <= MAX_PLAYERS:
+            if len(self.clients) <=  MAX_PLAYERS:
                 client_socket.send("FULL\n".encode()) #clienta oyun dolu mesajı gönder
                 client_socket.close()
                 continue
@@ -53,7 +54,20 @@ class BattleshipServer:
 
         #iki oyuncu bağlanana kadar bekle
         while len(self.clients) < MAX_PLAYERS:
-            pass
+            #pass düzeltme: cpu yorar sleep ile beklicez
+            time.sleep(1)
+            with self.lock:
+                if not self.game_started and len(self.clients) == MAX_PLAYERS:
+                    self.game_started = True
+                    self.broadcast("GAME_START") #oyun başladı mesajı gönder
+
+    def broadcast(self, message):
+        for client in self.clients:
+            client.send(message.encode())  
+
+    def send_private_msg(self, player_id, message):    
+        target_socket = self.clients[player_id]
+        target_socket.send(message.encode())                  
 
 
     #mesaj gönderme fonksiyonu
