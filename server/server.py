@@ -93,6 +93,12 @@ class BattleshipServer:
 
             opponent_id = 1 - player_id
             self.send_private_msg(opponent_id, f"OPPONENT_SHOT:{row}:{col}:{result}")
+
+            if self.game_state.phase == "gameover":
+                self.broadcast(f"GAME_OVER:Player {player_id} wins!")
+                self.send_private_msg(player_id, "YOU_WIN")
+                self.send_private_msg(opponent_id, "YOU_LOSE")
+
         elif command == "PLACE":
             row, col, length = int(parts[1]), int(parts[2]), int(parts[3])   
             horizontal = parts[4] == "H"
@@ -101,6 +107,13 @@ class BattleshipServer:
                 self.send_private_msg(player_id, "PLACE_SUCCESS")
             else:
                 self.send_private_msg(player_id, "PLACE_FAIL")
+                
+        elif command == "READY":
+            result = self.game_state.confirm_placement(player_id)
+            if result:
+                self.send_private_msg(result, "READY_SUCCESS")
+                if self.game_state.phase == "battle":
+                    self.broadcast("BATTLE_START")        
 
 
     #mesaj gönderme fonksiyonu
