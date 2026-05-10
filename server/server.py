@@ -34,7 +34,7 @@ class BattleshipServer:
             client_socket, address = server_socket.accept()
             print(f"Yeni bağlantı: {address}")
 
-            if len(self.clients) < MAX_PLAYERS:
+            if len(self.clients) <= MAX_PLAYERS:
                 client_socket.send("FULL\n".encode()) #clienta oyun dolu mesajı gönder
                 client_socket.close()
                 continue
