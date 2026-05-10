@@ -36,7 +36,7 @@ class BattleshipServer:
             client_socket, address = server_socket.accept()
             print(f"Yeni bağlantı: {address}")
 
-            if len(self.clients) >=  MAX_PLAYERS:
+            if len(self.clients) >= MAX_PLAYERS:
                 client_socket.send("FULL\n".encode()) #clienta oyun dolu mesajı gönder
                 client_socket.close()
                 continue
@@ -70,18 +70,19 @@ class BattleshipServer:
                 self.process_msg(player_id, message) 
             except: 
                 break
-            print(f"Oyuncu {player_id} bağlantısı kesildi.")
-            if client_socket in self.clients:
-                self.clients.remove(client_socket)
-            client_socket.close()                            
+
+        print(f"Oyuncu {player_id} bağlantısı kesildi.")
+        if client_socket in self.clients:
+            self.clients.remove(client_socket)
+        client_socket.close()                          
 
     def broadcast(self, message):
         for client in self.clients:
-            client.send(message.encode())  
+            client.send((message + "\n").encode())
 
     def send_private_msg(self, player_id, message):    
         target_socket = self.clients[player_id]
-        target_socket.send(message.encode())    
+        target_socket.send((message + "\n").encode())  
 
     def process_msg(self, player_id, message):
         parts = message.strip().split(":")
