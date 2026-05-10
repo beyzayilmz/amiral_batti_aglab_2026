@@ -23,6 +23,7 @@ class BattleshipServer:
         self.game_started = False #iki oyuncu da hazır mı
         self.lock = threading.Lock() #iki thread aynı anda shared resource'a erişmesin diye lock
         self.players = {}
+        self.game_state = game_logic.GameState()
 
     def start(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -72,7 +73,7 @@ class BattleshipServer:
             print(f"Oyuncu {player_id} bağlantısı kesildi.")
             if client_socket in self.clients:
                 self.clients.remove(client_socket)
-            client_socket.close()                    
+            client_socket.close()                            
 
     def broadcast(self, message):
         for client in self.clients:
@@ -80,7 +81,26 @@ class BattleshipServer:
 
     def send_private_msg(self, player_id, message):    
         target_socket = self.clients[player_id]
-        target_socket.send(message.encode())                  
+        target_socket.send(message.encode())    
+
+    def process_msg(self, player_id, message):
+        parts = message.strip().split(":")
+        command = parts[0]
+        if command == "SHOT":
+            row, col = int(parts[1]), int(parts[2])
+            result = self.game_state.shoot(player_id, row, col)
+            self.send_private_msg(player_id, f"SHOT_RESULT:{result}")
+
+            opponent_id = 1 - player_id
+            self.send_private_msg(opponent_id, f"OPPONENT_SHOT:{row}:{col}:{result}")
+        elif command == "PLACE":
+            row, col, length = int(parts[1]), int(parts[2]), int(parts[3])   
+            horizontal = parts[4] == "H"
+            result = self.game_state.place_ship(player_id, row, col, length, horizontal)
+            if result:
+                self.send_private_msg(player_id, "PLACE_SUCCESS")
+            else:
+                self.send_private_msg(player_id, "PLACE_FAIL")
 
 
     #mesaj gönderme fonksiyonu
