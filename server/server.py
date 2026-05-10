@@ -61,6 +61,19 @@ class BattleshipServer:
                     self.game_started = True
                     self.broadcast("GAME_START") #oyun başladı mesajı gönder
 
+            while True:
+                try:
+                    message = client_socket.recv(1024).decode()
+                    if not message:
+                        break
+                    self.process_message(player_id, message) 
+                except: 
+                    break
+            print(f"Oyuncu {player_id} bağlantısı kesildi.")
+            if client_socket in self.clients:
+                self.clients.remove(client_socket)
+            client_socket.close()                    
+
     def broadcast(self, message):
         for client in self.clients:
             client.send(message.encode())  
