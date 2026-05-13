@@ -96,7 +96,7 @@ class Ui_StartScreen(object):
         self.subtitleLabel.setStyleSheet(_translate("StartScreen", "color: #7fb3d3; font-size: 16px; font-family: Arial;"))
         self.ipLabel.setText(_translate("StartScreen", "Sunucu IP Adresi:"))
         self.ipLabel.setStyleSheet(_translate("StartScreen", "color: #e8f4f8; font-size: 14px; font-family: Arial;"))
-        self.ipInput.setText(_translate("StartScreen", "127.0.0.1"))
+        self.ipInput.setText(_translate("StartScreen", "51.21.197.217"))
         self.ipInput.setStyleSheet(_translate("StartScreen", "QLineEdit { background: #1a3a5c; color: white; border: 2px solid #2c5f8a; border-radius: 6px; padding: 8px; font-size: 14px; } QLineEdit:focus { border-color: #4a90d9; }"))
         self.portLabel.setText(_translate("StartScreen", "Port:"))
         self.portLabel.setStyleSheet(_translate("StartScreen", "color: #e8f4f8; font-size: 14px; font-family: Arial;"))
