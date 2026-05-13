@@ -100,7 +100,7 @@ class Ui_StartScreen(object):
         self.ipInput.setStyleSheet(_translate("StartScreen", "QLineEdit { background: #1a3a5c; color: white; border: 2px solid #2c5f8a; border-radius: 6px; padding: 8px; font-size: 14px; } QLineEdit:focus { border-color: #4a90d9; }"))
         self.portLabel.setText(_translate("StartScreen", "Port:"))
         self.portLabel.setStyleSheet(_translate("StartScreen", "color: #e8f4f8; font-size: 14px; font-family: Arial;"))
-        self.portInput.setText(_translate("StartScreen", "5555"))
+        self.portInput.setText(_translate("StartScreen", "8080"))
         self.portInput.setStyleSheet(_translate("StartScreen", "QLineEdit { background: #1a3a5c; color: white; border: 2px solid #2c5f8a; border-radius: 6px; padding: 8px; font-size: 14px; } QLineEdit:focus { border-color: #4a90d9; }"))
         self.connectBtn.setText(_translate("StartScreen", "BAĞLAN VE OYNA"))
         self.connectBtn.setStyleSheet(_translate("StartScreen", "QPushButton { background-color: #2ecc71; color: white; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; font-family: Arial; } QPushButton:hover { background-color: #27ae60; } QPushButton:pressed { background-color: #1e8449; } QPushButton:disabled { background-color: #555; }"))
