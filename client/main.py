@@ -486,8 +486,11 @@ class AnaEkran(QMainWindow):
             self.oyun_sonu.ui.subLabel.setText("Rakip tekrar oynamak istiyor, bekliyor...")
 
         elif tur == "opponent_disconnected":
-            QMessageBox.warning(self, "Bağlantı Kesildi", "Rakip bağlantıyı kesti!")
-            self.ekran_goster(0)
+            self.bekleme.mesaj_guncelle("Rakip bağlantıyı kesti!\nYeni rakip bekleniyor...")
+            self.ekran_goster(1)
+
+        elif tur == "waiting":
+            self.bekleme.mesaj_guncelle(mesaj.get("message", "Rakip bekleniyor..."))
 
     def baglanti_koptu(self):
         QMessageBox.critical(self, "Hata", "Sunucu bağlantısı kesildi!")
