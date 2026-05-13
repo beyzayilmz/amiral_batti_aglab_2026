@@ -385,11 +385,15 @@ class AnaEkran(QMainWindow):
             self.soket.settimeout(None)
             self.soket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
             try:
-                self.soket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 30)
-                self.soket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 10)
-                self.soket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 3)
-            except AttributeError:
-                pass  # Mac'te bazı keepalive seçenekleri desteklenmeyebilir
+                # Linux: TCP_KEEPIDLE, macOS: TCP_KEEPALIVE (16)
+                keepidle = getattr(socket, 'TCP_KEEPIDLE', None) or getattr(socket, 'TCP_KEEPALIVE', 16)
+                self.soket.setsockopt(socket.IPPROTO_TCP, keepidle, 10)
+                if hasattr(socket, 'TCP_KEEPINTVL'):
+                    self.soket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 5)
+                if hasattr(socket, 'TCP_KEEPCNT'):
+                    self.soket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 3)
+            except Exception:
+                pass
             threading.Thread(target=self.veri_al, daemon=True).start()
             self.sinyaller.mesaj_geldi.emit({"type": "_connected"})
         except Exception as hata:
