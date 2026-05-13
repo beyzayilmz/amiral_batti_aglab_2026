@@ -123,10 +123,13 @@ class Tahta(QWidget):
             self.kare_tiklandi.emit(r, s)
 
     def tahtayi_guncelle(self, izgara):
+        self.setUpdatesEnabled(False)
         for r in range(BOARD_SIZE):
             for s in range(BOARD_SIZE):
                 if self.kareler[(r, s)].durum != izgara[r][s]:
                     self.kareler[(r, s)].durumu_degistir(izgara[r][s])
+        self.setUpdatesEnabled(True)
+        self.update()
 
     def tiklanabilir_yap(self, aktif):
         for kare in self.kareler.values():
@@ -396,14 +399,15 @@ class AnaEkran(QMainWindow):
             while True:
                 veri = self.soket.recv(4096)
                 if not veri:
+                    print("veri_al: bağlantı kapandı (boş veri)")
                     break
                 tampon += veri
                 while b"\n" in tampon:
                     satir, tampon = tampon.split(b"\n", 1)
                     mesaj = json.loads(satir.decode("utf-8"))
                     self.sinyaller.mesaj_geldi.emit(mesaj)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"veri_al hatası: {type(e).__name__}: {e}")
         self.sinyaller.baglanti_kesildi.emit()
 
     def mesaj_gonder(self, veri):
