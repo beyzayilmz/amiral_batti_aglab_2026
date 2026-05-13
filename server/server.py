@@ -228,13 +228,24 @@ class BattleshipServer:
             return None
         local_id = room["players"].index(player_id)
 
-        while b"\n" not in room["buffers"][local_id]:
-            data = self.clients[player_id].recv(1024)
-            if not data:
-                return None
-            room["buffers"][local_id] += data
-        line, room["buffers"][local_id] = room["buffers"][local_id].split(b"\n", 1)
-        return json.loads(line.decode("utf-8"))
+        try:
+            self.clients[player_id].settimeout(30)
+            while b"\n" not in room["buffers"][local_id]:
+                data = self.clients[player_id].recv(1024)
+                if not data:
+                    return None
+                room["buffers"][local_id] += data
+            line, room["buffers"][local_id] = room["buffers"][local_id].split(b"\n", 1)
+            return json.loads(line.decode("utf-8"))
+        except socket.timeout:
+            print(f"Oyuncu {player_id}: recv_line timeout")
+            return None
+        except json.JSONDecodeError as e:
+            print(f"Oyuncu {player_id}: JSON decode hatası - {e}")
+            return None
+        except Exception as e:
+            print(f"Oyuncu {player_id}: recv_line hatası - {e}")
+            return None
 
 
 if __name__ == "__main__":

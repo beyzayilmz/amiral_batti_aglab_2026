@@ -402,6 +402,7 @@ class AnaEkran(QMainWindow):
     def veri_al(self):
         tampon = b""
         try:
+            self.soket.settimeout(60)
             while True:
                 veri = self.soket.recv(4096)
                 if not veri:
@@ -412,6 +413,8 @@ class AnaEkran(QMainWindow):
                     satir, tampon = tampon.split(b"\n", 1)
                     mesaj = json.loads(satir.decode("utf-8"))
                     self.sinyaller.mesaj_geldi.emit(mesaj)
+        except socket.timeout:
+            print("veri_al: timeout - sunucu cevap vermiyor")
         except Exception as e:
             print(f"veri_al hatası: {type(e).__name__}: {e}")
         self.sinyaller.baglanti_kesildi.emit()
@@ -419,7 +422,11 @@ class AnaEkran(QMainWindow):
     def mesaj_gonder(self, veri):
         try:
             metin = json.dumps(veri, ensure_ascii=False) + "\n"
+            self.soket.settimeout(5)
             self.soket.sendall(metin.encode("utf-8"))
+            self.soket.settimeout(None)
+        except socket.timeout:
+            print(f"Gönderme timeout: {veri.get('type')}")
         except Exception as hata:
             print(f"Gönderme hatası: {hata}")
 
