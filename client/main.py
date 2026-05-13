@@ -357,14 +357,20 @@ class AnaEkran(QMainWindow):
         self.yigin.setCurrentIndex(index)
 
     def sunucuya_baglan(self, ip, port):
+        self.ekran_goster(1)
+        self.bekleme.mesaj_guncelle("Bağlanılıyor...")
+        threading.Thread(target=self._baglan_thread, args=(ip, port), daemon=True).start()
+
+    def _baglan_thread(self, ip, port):
         try:
             self.soket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.soket.settimeout(10)
             self.soket.connect((ip, port))
+            self.soket.settimeout(None)
             threading.Thread(target=self.veri_al, daemon=True).start()
-            self.bekleme.mesaj_guncelle("Bağlandı! Rakip bekleniyor...")
-            self.ekran_goster(1)
+            self.sinyaller.mesaj_geldi.emit({"type": "_connected"})
         except Exception as hata:
-            self.baslangic.hata_goster(f"Bağlantı hatası: {hata}")
+            self.sinyaller.mesaj_geldi.emit({"type": "_connect_error", "msg": str(hata)})
 
     def veri_al(self):
         tampon = b""
@@ -392,7 +398,14 @@ class AnaEkran(QMainWindow):
     def mesaji_isle(self, mesaj):
         tur = mesaj.get("type")
 
-        if tur == "welcome":
+        if tur == "_connected":
+            self.bekleme.mesaj_guncelle("Bağlandı! Rakip bekleniyor...")
+
+        elif tur == "_connect_error":
+            self.ekran_goster(0)
+            self.baslangic.hata_goster(f"Bağlantı hatası: {mesaj['msg']}")
+
+        elif tur == "welcome":
             self.oyuncu_id = mesaj["player_id"]
             self.bekleme.mesaj_guncelle(f"Oyuncu {self.oyuncu_id + 1} olarak bağlandınız.\nRakip bekleniyor...")
 
