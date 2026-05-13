@@ -31,26 +31,9 @@ class BattleshipServer:
         server_socket.listen()
         print(f"Server {HOST}:{PORT} üzerinde dinleniyor.")
 
-        # Heartbeat thread: her 25 saniyede tüm clientlara ping gönder
-        def heartbeat():
-            while True:
-                time.sleep(25)
-                with self.lock:
-                    player_ids = list(self.clients.keys())
-                for pid in player_ids:
-                    try:
-                        self.send(pid, {"type": "ping"})
-                    except:
-                        pass
-        threading.Thread(target=heartbeat, daemon=True).start()
-
         while True:
             client_socket, address = server_socket.accept()
             print(f"Yeni bağlantı: {address}")
-            client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-            client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 30)
-            client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 10)
-            client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 3)
 
             with self.lock:
                 player_id = self.next_player_id
@@ -241,24 +224,13 @@ class BattleshipServer:
             return None
         local_id = room["players"].index(player_id)
 
-        try:
-            self.clients[player_id].settimeout(30)
-            while b"\n" not in room["buffers"][local_id]:
-                data = self.clients[player_id].recv(1024)
-                if not data:
-                    return None
-                room["buffers"][local_id] += data
-            line, room["buffers"][local_id] = room["buffers"][local_id].split(b"\n", 1)
-            return json.loads(line.decode("utf-8"))
-        except socket.timeout:
-            print(f"Oyuncu {player_id}: recv_line timeout")
-            return None
-        except json.JSONDecodeError as e:
-            print(f"Oyuncu {player_id}: JSON decode hatası - {e}")
-            return None
-        except Exception as e:
-            print(f"Oyuncu {player_id}: recv_line hatası - {e}")
-            return None
+        while b"\n" not in room["buffers"][local_id]:
+            data = self.clients[player_id].recv(1024)
+            if not data:
+                return None
+            room["buffers"][local_id] += data
+        line, room["buffers"][local_id] = room["buffers"][local_id].split(b"\n", 1)
+        return json.loads(line.decode("utf-8"))
 
 
 if __name__ == "__main__":

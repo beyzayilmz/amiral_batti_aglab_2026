@@ -36,42 +36,43 @@ class SinyalKoprusu(QObject):
     baglanti_kesildi = pyqtSignal()
 
 
-# Stil önbelleği: durum -> stil string (tiklanabilir artık hücre bazında yok)
-_KARE_STILLER = {}
-
-def _kare_stil(durum):
-    if durum not in _KARE_STILLER:
-        renkler = {EMPTY: RENK_BOSLUK, SHIP: RENK_GEMI, MISS: RENK_ISKA, HIT: RENK_ISABET}
-        yazilar = {EMPTY: "", SHIP: "", MISS: "•", HIT: "✕"}
-        arkaplan = renkler.get(durum, RENK_BOSLUK)
-        _KARE_STILLER[durum] = (
-            f"QPushButton {{ background-color: {arkaplan}; border: 1px solid #1e3a52; "
-            f"border-radius: 3px; color: white; font-size: 13px; font-weight: bold; }}"
-            f"QPushButton:hover {{ background-color: {RENK_HOVER if durum == EMPTY else arkaplan}; }}",
-            yazilar.get(durum, "")
-        )
-    return _KARE_STILLER[durum]
-
-
 # Tahta üzerindeki her bir kare
 class Kare(QPushButton):
     def __init__(self, satir, sutun):
         super().__init__()
         self.satir = satir
         self.sutun = sutun
+        self.tiklanabilir = False
         self.durum = EMPTY
         self.setFixedSize(42, 42)
-        stil, yazi = _kare_stil(EMPTY)
-        self.setStyleSheet(stil)
-        self.setText(yazi)
+        self.stili_guncelle()
 
     def durumu_degistir(self, yeni_durum):
-        if self.durum == yeni_durum:
-            return
         self.durum = yeni_durum
-        stil, yazi = _kare_stil(yeni_durum)
-        self.setStyleSheet(stil)
-        self.setText(yazi)
+        self.stili_guncelle()
+
+    def tiklanabilir_yap(self, aktif):
+        self.tiklanabilir = aktif
+        self.setCursor(QCursor(Qt.PointingHandCursor) if aktif else QCursor(Qt.ArrowCursor))
+        self.stili_guncelle()
+
+    def stili_guncelle(self):
+        renkler = {EMPTY: RENK_BOSLUK, SHIP: RENK_GEMI, MISS: RENK_ISKA, HIT: RENK_ISABET}
+        yazilar = {EMPTY: "", SHIP: "", MISS: "•", HIT: "✕"}
+        arkaplan = renkler.get(self.durum, RENK_BOSLUK)
+        hover = RENK_HOVER if self.tiklanabilir else arkaplan
+        self.setText(yazilar.get(self.durum, ""))
+        self.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {arkaplan};
+                border: 1px solid #1e3a52;
+                border-radius: 3px;
+                color: white;
+                font-size: 13px;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{ background-color: {hover}; }}
+        """)
 
 
 # 10x10 tahta widget'ı
@@ -80,7 +81,6 @@ class Tahta(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.aktif = False  # Tıklanabilir mi (board seviyesinde)
         self.kareler = {}
         ana_layout = QVBoxLayout(self)
         ana_layout.setSpacing(2)
@@ -111,8 +111,7 @@ class Tahta(QWidget):
             ana_layout.addLayout(satir_layout)
 
     def _kare_tiklandi(self, r, s):
-        # Sadece board aktifse ve hücre boşsa tıklanabilir
-        if self.aktif and self.kareler[(r, s)].durum == EMPTY:
+        if self.kareler[(r, s)].tiklanabilir:
             self.kare_tiklandi.emit(r, s)
 
     def tahtayi_guncelle(self, izgara):
@@ -121,9 +120,8 @@ class Tahta(QWidget):
                 self.kareler[(r, s)].durumu_degistir(izgara[r][s])
 
     def tiklanabilir_yap(self, aktif):
-        # Sadece board seviyesinde flag güncelle — hücrelere dokunma!
-        self.aktif = aktif
-        self.setCursor(QCursor(Qt.PointingHandCursor) if aktif else QCursor(Qt.ArrowCursor))
+        for kare in self.kareler.values():
+            kare.tiklanabilir_yap(aktif)
 class BaslangicEkrani(QWidget):
     baglan_sinyali = pyqtSignal(str, int)
 
@@ -359,77 +357,42 @@ class AnaEkran(QMainWindow):
         self.yigin.setCurrentIndex(index)
 
     def sunucuya_baglan(self, ip, port):
-        self.ekran_goster(1)
-        self.bekleme.mesaj_guncelle("Bağlanılıyor...")
-        threading.Thread(target=self._baglan_thread, args=(ip, port), daemon=True).start()
-
-    def _baglan_thread(self, ip, port):
         try:
             self.soket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.soket.settimeout(10)
             self.soket.connect((ip, port))
-            self.soket.settimeout(None)
-            self.soket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-            try:
-                # Linux: TCP_KEEPIDLE, macOS: TCP_KEEPALIVE (16)
-                keepidle = getattr(socket, 'TCP_KEEPIDLE', None) or getattr(socket, 'TCP_KEEPALIVE', 16)
-                self.soket.setsockopt(socket.IPPROTO_TCP, keepidle, 10)
-                if hasattr(socket, 'TCP_KEEPINTVL'):
-                    self.soket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 5)
-                if hasattr(socket, 'TCP_KEEPCNT'):
-                    self.soket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 3)
-            except Exception:
-                pass
             threading.Thread(target=self.veri_al, daemon=True).start()
-            self.sinyaller.mesaj_geldi.emit({"type": "_connected"})
+            self.bekleme.mesaj_guncelle("Bağlandı! Rakip bekleniyor...")
+            self.ekran_goster(1)
         except Exception as hata:
-            self.sinyaller.mesaj_geldi.emit({"type": "_connect_error", "msg": str(hata)})
+            self.baslangic.hata_goster(f"Bağlantı hatası: {hata}")
 
     def veri_al(self):
         tampon = b""
         try:
-            self.soket.settimeout(60)
             while True:
                 veri = self.soket.recv(4096)
                 if not veri:
-                    print("veri_al: bağlantı kapandı (boş veri)")
                     break
                 tampon += veri
                 while b"\n" in tampon:
                     satir, tampon = tampon.split(b"\n", 1)
                     mesaj = json.loads(satir.decode("utf-8"))
                     self.sinyaller.mesaj_geldi.emit(mesaj)
-        except socket.timeout:
-            print("veri_al: timeout - sunucu cevap vermiyor")
-        except Exception as e:
-            print(f"veri_al hatası: {type(e).__name__}: {e}")
+        except Exception:
+            pass
         self.sinyaller.baglanti_kesildi.emit()
 
     def mesaj_gonder(self, veri):
         try:
             metin = json.dumps(veri, ensure_ascii=False) + "\n"
-            self.soket.settimeout(5)
             self.soket.sendall(metin.encode("utf-8"))
-            self.soket.settimeout(None)
-        except socket.timeout:
-            print(f"Gönderme timeout: {veri.get('type')}")
         except Exception as hata:
             print(f"Gönderme hatası: {hata}")
 
     def mesaji_isle(self, mesaj):
         tur = mesaj.get("type")
 
-        if tur == "ping":
-            return  # Heartbeat, yoksay
-
-        elif tur == "_connected":
-            self.bekleme.mesaj_guncelle("Bağlandı! Rakip bekleniyor...")
-
-        elif tur == "_connect_error":
-            self.ekran_goster(0)
-            self.baslangic.hata_goster(f"Bağlantı hatası: {mesaj['msg']}")
-
-        elif tur == "welcome":
+        if tur == "welcome":
             self.oyuncu_id = mesaj["player_id"]
             self.bekleme.mesaj_guncelle(f"Oyuncu {self.oyuncu_id + 1} olarak bağlandınız.\nRakip bekleniyor...")
 
@@ -488,11 +451,8 @@ class AnaEkran(QMainWindow):
             self.oyun_sonu.ui.subLabel.setText("Rakip tekrar oynamak istiyor, bekliyor...")
 
         elif tur == "opponent_disconnected":
-            self.bekleme.mesaj_guncelle("Rakip bağlantıyı kesti!\nYeni rakip bekleniyor...")
-            self.ekran_goster(1)
-
-        elif tur == "waiting":
-            self.bekleme.mesaj_guncelle(mesaj.get("message", "Rakip bekleniyor..."))
+            QMessageBox.warning(self, "Bağlantı Kesildi", "Rakip bağlantıyı kesti!")
+            self.ekran_goster(0)
 
     def baglanti_koptu(self):
         QMessageBox.critical(self, "Hata", "Sunucu bağlantısı kesildi!")
