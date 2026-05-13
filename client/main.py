@@ -261,6 +261,9 @@ class SavasEkrani(QWidget):
         self.ui = Ui_BattleScreen()
         self.ui.setupUi(self)
         self.benim_siram = False
+        self.isabet = 0
+        self.iska = 0
+        self.batan_gemi = 0
 
         # Kendi tahtam
         self.kendi_tahtam = Tahta()
@@ -292,6 +295,23 @@ class SavasEkrani(QWidget):
         else:
             self.ui.statusLabel.setText("⏳ Rakibin hamlesini bekle...")
             self.ui.statusLabel.setStyleSheet("color: #e74c3c; font-size: 13px; font-weight: bold;")
+
+    def istatistik_guncelle(self, sonuc):
+        if sonuc in ("hit", "sunk", "win"):
+            self.isabet += 1
+            self.ui.hitsValue.setText(str(self.isabet))
+        elif sonuc == "miss":
+            self.iska += 1
+            self.ui.missesValue.setText(str(self.iska))
+        if sonuc in ("sunk", "win"):
+            self.batan_gemi += 1
+            self.ui.sunkValue.setText(f"{self.batan_gemi}/5")
+
+    def sifirla_istatistik(self):
+        self.isabet = self.iska = self.batan_gemi = 0
+        self.ui.hitsValue.setText("0")
+        self.ui.missesValue.setText("0")
+        self.ui.sunkValue.setText("0/5")
 
     def bilgi_goster(self, mesaj):
         self.ui.infoLabel.setText(mesaj)
@@ -413,6 +433,8 @@ class AnaEkran(QMainWindow):
             }
             kim = "Sen" if mesaj["shooter"] == self.oyuncu_id else "Rakip"
             self.savas.bilgi_goster(f"{kim}: {sonuclar.get(mesaj['result'], '')}")
+            if mesaj["shooter"] == self.oyuncu_id:
+                self.savas.istatistik_guncelle(mesaj["result"])
             self.savas.guncelle(
                 mesaj["my_board"], mesaj["opponent_board"],
                 mesaj["current_turn"], self.oyuncu_id
@@ -447,6 +469,7 @@ class AnaEkran(QMainWindow):
         self.mesaj_gonder({"type": "shoot", "row": satir, "col": sutun})
 
     def tekrar_oyna(self):
+        self.savas.sifirla_istatistik()
         self.mesaj_gonder({"type": "play_again"})
         self.bekleme.mesaj_guncelle("Yeni oyun başlatılıyor...")
         self.ekran_goster(1)
