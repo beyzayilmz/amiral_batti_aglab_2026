@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PlacementScreen</class>
+ <widget class="QWidget" name="PlacementScreen">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1100</width>
+    <height>750</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Amiral Battı - Gemi Yerleştir</string>
+  </property>
+  <property name="styleSheet">
+   <string>background-color: #0d1b2a;</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>10</number>
+   </property>
+   <property name="contentsMargins">
+    <number>20</number>
+    <number>15</number>
+    <number>20</number>
+    <number>15</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="titleLabel">
+     <property name="text">
+      <string>GEMİLERİ YERLEŞTİR</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="styleSheet">
+      <string>color: #e8f4f8; font-size: 22px; font-weight: bold; font-family: Arial;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="infoLabel">
+     <property name="text">
+      <string>Yerleştirilecek gemi seçin</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="styleSheet">
+      <string>color: #f39c12; font-size: 13px; font-family: Arial;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="contentLayout">
+     <property name="spacing">
+      <number>30</number>
+     </property>
+     <item>
+      <widget class="QGroupBox" name="boardGroup">
+       <property name="title">
+        <string>Senin Tahtanı</string>
+       </property>
+       <property name="styleSheet">
+        <string>QGroupBox { color: #4fc3f7; font-size: 13px; font-weight: bold; border: 1px solid #1e3a52; border-radius: 6px; margin-top: 10px; padding-top: 10px; } QGroupBox::title { subcontrol-origin: margin; left: 10px; }</string>
+       </property>
+       <layout class="QVBoxLayout" name="boardLayout">
+        <item>
+         <widget class="QWidget" name="boardWidget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>480</width>
+            <height>480</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="controlLayout">
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="shipsTitle">
+         <property name="text">
+          <string>Gemiler:</string>
+         </property>
+         <property name="styleSheet">
+          <string>color: #e8f4f8; font-size: 14px; font-weight: bold; font-family: Arial;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="ship1Label">
+         <property name="text">
+          <string>█████  Uçak Gemisi (5)</string>
+         </property>
+         <property name="styleSheet">
+          <string>color: #1565c0; font-size: 13px; font-family: monospace;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="ship2Label">
+         <property name="text">
+          <string>████  Zırhlı (4)</string>
+         </property>
+         <property name="styleSheet">
+          <string>color: #6a1b9a; font-size: 13px; font-family: monospace;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="ship3Label">
+         <property name="text">
+          <string>███  Kruvazör (3)</string>
+         </property>
+         <property name="styleSheet">
+          <string>color: #00695c; font-size: 13px; font-family: monospace;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="ship4Label">
+         <property name="text">
+          <string>███  Destroyer (3)</string>
+         </property>
+         <property name="styleSheet">
+          <string>color: #558b2f; font-size: 13px; font-family: monospace;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="ship5Label">
+         <property name="text">
+          <string>██  Denizaltı (2)</string>
+         </property>
+         <property name="styleSheet">
+          <string>color: #e65100; font-size: 13px; font-family: monospace;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation"><enum>Qt::Vertical</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>20</width><height>20</height></size></property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="directionBtn">
+         <property name="text">
+          <string>↔ Yatay</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>180</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string>QPushButton { background-color: #2980b9; color: white; border-radius: 6px; padding: 8px; font-size: 13px; font-weight: bold; font-family: Arial; } QPushButton:hover { background-color: #2471a3; }</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation"><enum>Qt::Vertical</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>20</width><height>20</height></size></property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="confirmBtn">
+         <property name="text">
+          <string>✔ Onayla</string>
+         </property>
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>180</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string>QPushButton { background-color: #27ae60; color: white; border-radius: 6px; padding: 8px; font-size: 13px; font-weight: bold; font-family: Arial; } QPushButton:hover { background-color: #1e8449; } QPushButton:disabled { background-color: #555; }</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="statusLabel">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string>color: #95a5a6; font-size: 11px; font-family: Arial;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation"><enum>Qt::Vertical</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>20</width><height>40</height></size></property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

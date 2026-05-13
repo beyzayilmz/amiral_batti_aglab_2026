@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EndScreen</class>
+ <widget class="QWidget" name="EndScreen">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1100</width>
+    <height>750</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Amiral Battı - Oyun Bitti</string>
+  </property>
+  <property name="styleSheet">
+   <string>background-color: #0d1b2a;</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>24</number>
+   </property>
+   <property name="contentsMargins">
+    <number>100</number>
+    <number>100</number>
+    <number>100</number>
+    <number>100</number>
+   </property>
+   <item>
+    <spacer>
+     <property name="orientation"><enum>Qt::Vertical</enum></property>
+     <property name="sizeHint" stdset="0"><size><width>20</width><height>40</height></size></property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="resultLabel">
+     <property name="text">
+      <string>OYUN BİTTİ</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="styleSheet">
+      <string>color: #f1c40f; font-size: 42px; font-weight: bold; font-family: Arial;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="subLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="styleSheet">
+      <string>color: #e8f4f8; font-size: 18px; font-family: Arial;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer>
+     <property name="orientation"><enum>Qt::Vertical</enum></property>
+     <property name="sizeHint" stdset="0"><size><width>20</width><height>30</height></size></property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout">
+     <item>
+      <spacer>
+       <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="playAgainBtn">
+       <property name="text">
+        <string>🔄 Tekrar Oyna</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>240</width>
+         <height>55</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string>QPushButton { background-color: #2ecc71; color: white; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; font-family: Arial; } QPushButton:hover { background-color: #27ae60; }</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       <property name="sizeHint" stdset="0"><size><width>20</width><height>20</height></size></property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="quitBtn">
+       <property name="text">
+        <string>❌ Çıkış</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>240</width>
+         <height>55</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string>QPushButton { background-color: #e74c3c; color: white; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; font-family: Arial; } QPushButton:hover { background-color: #c0392b; }</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer>
+     <property name="orientation"><enum>Qt::Vertical</enum></property>
+     <property name="sizeHint" stdset="0"><size><width>20</width><height>40</height></size></property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

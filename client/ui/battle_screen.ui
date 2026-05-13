@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BattleScreen</class>
+ <widget class="QWidget" name="BattleScreen">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1100</width>
+    <height>750</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Amiral Battı - Savaş</string>
+  </property>
+  <property name="styleSheet">
+   <string>background-color: #0d1b2a;</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>8</number>
+   </property>
+   <property name="contentsMargins">
+    <number>20</number>
+    <number>10</number>
+    <number>20</number>
+    <number>10</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="titleLabel">
+     <property name="text">
+      <string>AMİRAL BATTI</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="styleSheet">
+      <string>color: #4fc3f7; font-size: 20px; font-weight: bold; font-family: Arial; letter-spacing: 4px; border-bottom: 1px solid #1e3a52; padding-bottom: 4px;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="statusLabel">
+     <property name="text">
+      <string>Bekleniyor...</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="styleSheet">
+      <string>color: #e8f4f8; font-size: 14px; font-weight: bold; font-family: Arial;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="boardsLayout">
+     <property name="spacing">
+      <number>30</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="myBoardGroup">
+       <property name="title">
+        <string>KENDİ TAHTAM</string>
+       </property>
+       <property name="styleSheet">
+        <string>QGroupBox { color: #4fc3f7; font-size: 12px; font-weight: bold; border: 1px solid #1e3a52; border-radius: 6px; margin-top: 10px; padding-top: 10px; } QGroupBox::title { subcontrol-origin: margin; left: 10px; }</string>
+       </property>
+       <layout class="QVBoxLayout">
+        <item>
+         <widget class="QWidget" name="myBoardWidget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>460</width>
+            <height>460</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="oppBoardGroup">
+       <property name="title">
+        <string>HEDEF TAHTASI</string>
+       </property>
+       <property name="styleSheet">
+        <string>QGroupBox { color: #e74c3c; font-size: 12px; font-weight: bold; border: 1px solid #1e3a52; border-radius: 6px; margin-top: 10px; padding-top: 10px; } QGroupBox::title { subcontrol-origin: margin; left: 10px; }</string>
+       </property>
+       <layout class="QVBoxLayout">
+        <item>
+         <widget class="QWidget" name="oppBoardWidget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>460</width>
+            <height>460</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="statsLayout">
+     <property name="spacing">
+      <number>10</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QFrame" name="hitsFrame">
+       <property name="styleSheet">
+        <string>QFrame { background: #0a1520; border: 1px solid #e74c3c44; border-radius: 6px; border-left: 3px solid #e74c3c; }</string>
+       </property>
+       <layout class="QVBoxLayout">
+        <property name="spacing"><number>2</number></property>
+        <property name="contentsMargins"><number>12</number><number>6</number><number>12</number><number>6</number></property>
+        <item>
+         <widget class="QLabel" name="hitsValue">
+          <property name="text"><string>0</string></property>
+          <property name="alignment"><set>Qt::AlignCenter</set></property>
+          <property name="styleSheet"><string>color: #e74c3c; font-size: 22px; font-weight: bold; border: none;</string></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="hitsLabel">
+          <property name="text"><string>İSABET</string></property>
+          <property name="alignment"><set>Qt::AlignCenter</set></property>
+          <property name="styleSheet"><string>color: #546e7a; font-size: 10px; border: none;</string></property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="missesFrame">
+       <property name="styleSheet">
+        <string>QFrame { background: #0a1520; border: 1px solid #f39c1244; border-radius: 6px; border-left: 3px solid #f39c12; }</string>
+       </property>
+       <layout class="QVBoxLayout">
+        <property name="spacing"><number>2</number></property>
+        <property name="contentsMargins"><number>12</number><number>6</number><number>12</number><number>6</number></property>
+        <item>
+         <widget class="QLabel" name="missesValue">
+          <property name="text"><string>0</string></property>
+          <property name="alignment"><set>Qt::AlignCenter</set></property>
+          <property name="styleSheet"><string>color: #f39c12; font-size: 22px; font-weight: bold; border: none;</string></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="missesLabel">
+          <property name="text"><string>ISKALA</string></property>
+          <property name="alignment"><set>Qt::AlignCenter</set></property>
+          <property name="styleSheet"><string>color: #546e7a; font-size: 10px; border: none;</string></property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="sunkFrame">
+       <property name="styleSheet">
+        <string>QFrame { background: #0a1520; border: 1px solid #4fc3f744; border-radius: 6px; border-left: 3px solid #4fc3f7; }</string>
+       </property>
+       <layout class="QVBoxLayout">
+        <property name="spacing"><number>2</number></property>
+        <property name="contentsMargins"><number>12</number><number>6</number><number>12</number><number>6</number></property>
+        <item>
+         <widget class="QLabel" name="sunkValue">
+          <property name="text"><string>0/5</string></property>
+          <property name="alignment"><set>Qt::AlignCenter</set></property>
+          <property name="styleSheet"><string>color: #4fc3f7; font-size: 22px; font-weight: bold; border: none;</string></property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="sunkLabel">
+          <property name="text"><string>GEMİ BATTI</string></property>
+          <property name="alignment"><set>Qt::AlignCenter</set></property>
+          <property name="styleSheet"><string>color: #546e7a; font-size: 10px; border: none;</string></property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="infoLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="styleSheet">
+      <string>color: #f39c12; font-size: 12px; background: #0a1520; border: 1px solid #1e3a52; border-radius: 5px; padding: 4px; font-family: Arial;</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
