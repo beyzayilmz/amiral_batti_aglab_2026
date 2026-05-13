@@ -55,7 +55,6 @@ class Kare(QPushButton):
         if self.tiklanabilir == aktif:
             return
         self.tiklanabilir = aktif
-        self.setCursor(QCursor(Qt.PointingHandCursor) if aktif else QCursor(Qt.ArrowCursor))
         self.stili_guncelle()
 
     # Stil önbelleği: (durum, tiklanabilir) -> stil string
@@ -132,10 +131,13 @@ class Tahta(QWidget):
         self.update()
 
     def tiklanabilir_yap(self, aktif):
+        self.setCursor(QCursor(Qt.PointingHandCursor) if aktif else QCursor(Qt.ArrowCursor))
+        self.setUpdatesEnabled(False)
         for kare in self.kareler.values():
-            # Daha önce atılmış hücreler zaten tıklanamaz
             hedef = aktif and kare.durum == EMPTY
             kare.tiklanabilir_yap(hedef)
+        self.setUpdatesEnabled(True)
+        self.update()
 class BaslangicEkrani(QWidget):
     baglan_sinyali = pyqtSignal(str, int)
 
