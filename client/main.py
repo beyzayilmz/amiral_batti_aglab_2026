@@ -56,13 +56,18 @@ class Kare(QPushButton):
         self.setCursor(QCursor(Qt.PointingHandCursor) if aktif else QCursor(Qt.ArrowCursor))
         self.stili_guncelle()
 
+    # Stil önbelleği: (durum, tiklanabilir) -> stil string
+    _stil_onbellegi = {}
+
     def stili_guncelle(self):
         renkler = {EMPTY: RENK_BOSLUK, SHIP: RENK_GEMI, MISS: RENK_ISKA, HIT: RENK_ISABET}
         yazilar = {EMPTY: "", SHIP: "", MISS: "•", HIT: "✕"}
         arkaplan = renkler.get(self.durum, RENK_BOSLUK)
         hover = RENK_HOVER if self.tiklanabilir else arkaplan
         self.setText(yazilar.get(self.durum, ""))
-        self.setStyleSheet(f"""
+        anahtar = (self.durum, self.tiklanabilir)
+        if anahtar not in Kare._stil_onbellegi:
+            Kare._stil_onbellegi[anahtar] = f"""
             QPushButton {{
                 background-color: {arkaplan};
                 border: 1px solid #1e3a52;
@@ -72,7 +77,8 @@ class Kare(QPushButton):
                 font-weight: bold;
             }}
             QPushButton:hover {{ background-color: {hover}; }}
-        """)
+        """
+        self.setStyleSheet(Kare._stil_onbellegi[anahtar])
 
 
 # 10x10 tahta widget'ı
@@ -117,7 +123,8 @@ class Tahta(QWidget):
     def tahtayi_guncelle(self, izgara):
         for r in range(BOARD_SIZE):
             for s in range(BOARD_SIZE):
-                self.kareler[(r, s)].durumu_degistir(izgara[r][s])
+                if self.kareler[(r, s)].durum != izgara[r][s]:
+                    self.kareler[(r, s)].durumu_degistir(izgara[r][s])
 
     def tiklanabilir_yap(self, aktif):
         for kare in self.kareler.values():
