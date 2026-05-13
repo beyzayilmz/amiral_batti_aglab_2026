@@ -34,6 +34,10 @@ class BattleshipServer:
         while True:
             client_socket, address = server_socket.accept()
             print(f"Yeni bağlantı: {address}")
+            client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+            client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 30)
+            client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 10)
+            client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 3)
 
             with self.lock:
                 player_id = self.next_player_id

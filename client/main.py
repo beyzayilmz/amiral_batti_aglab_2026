@@ -378,6 +378,10 @@ class AnaEkran(QMainWindow):
             self.soket.settimeout(10)
             self.soket.connect((ip, port))
             self.soket.settimeout(None)
+            self.soket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+            self.soket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 30)
+            self.soket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 10)
+            self.soket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 3)
             threading.Thread(target=self.veri_al, daemon=True).start()
             self.sinyaller.mesaj_geldi.emit({"type": "_connected"})
         except Exception as hata:
