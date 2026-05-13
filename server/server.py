@@ -101,11 +101,13 @@ class BattleshipServer:
                 room_id = self.player_room[player_id]
                 room = self.rooms.get(room_id)
                 if room:
-                    # Rakibe bildir
+                    # Kalan oyuncuyu bul ve beklemeye al
                     for pid in room["players"]:
                         if pid != player_id and pid in self.clients:
                             try:
                                 self.send(pid, {"type": "opponent_disconnected"})
+                                self.waiting_player = pid
+                                self.send(pid, {"type": "waiting", "message": "Rakip bekleniyor..."})
                             except:
                                 pass
                     del self.rooms[room_id]
