@@ -101,7 +101,11 @@ class BattleshipServer:
                 room_id = self.player_room[player_id]
                 room = self.rooms.get(room_id)
                 if room:
-                    # Kalan oyuncuyu bul ve beklemeye al
+                    # Tüm oyuncuların player_room kaydını sil (recv_line None dönmesin diye önce)
+                    for pid in room["players"]:
+                        self.player_room.pop(pid, None)
+                    del self.rooms[room_id]
+                    # Kalan oyuncuyu beklemeye al
                     for pid in room["players"]:
                         if pid != player_id and pid in self.clients:
                             try:
@@ -110,10 +114,8 @@ class BattleshipServer:
                                 self.send(pid, {"type": "waiting", "message": "Rakip bekleniyor..."})
                             except:
                                 pass
-                    del self.rooms[room_id]
-                for pid in self.rooms.get(room_id, {}).get("players", []):
-                    self.player_room.pop(pid, None)
-                self.player_room.pop(player_id, None)
+                else:
+                    self.player_room.pop(player_id, None)
 
             # Bekleme listesinden çıkar
             if self.waiting_player == player_id:
