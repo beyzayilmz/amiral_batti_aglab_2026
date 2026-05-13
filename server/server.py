@@ -24,6 +24,8 @@ class BattleshipServer:
         self.lock = threading.Lock() #iki thread aynı anda shared resource'a erişmesin diye lock
         self.players = {}
         self.game_state = game_logic.GameState()
+        self.buffers = [b"", b""] # Her oyuncu için gelen veriyi depolamak için buffer
+        self.play_again_votes = [False, False] # Her oyuncunun tekrar oynamak isteyip istemediği bilgisi
 
     def start(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -50,7 +52,7 @@ class BattleshipServer:
             thread.start()
 
     def handle_client(self, client_socket, player_id):
-        client_socket.send(f"Player ID: {player_id}\n".encode()) #clienta player id'si gönder
+        self.send(player_id, {"type": "welcome", "player_id": player_id}) #clienta player id'si gönder
         print(f"Oyuncu {player_id} e id gönderildi")
 
         #iki oyuncu bağlanana kadar bekle
@@ -60,11 +62,11 @@ class BattleshipServer:
         with self.lock:
             if not self.game_started and len(self.clients) == MAX_PLAYERS:
                 self.game_started = True
-                self.broadcast("GAME_START") #oyun başladı mesajı gönder
+                self.broadcast({"type": "start_placement"}) #oyun başladı mesajı gönder
 
         while True:
             try:
-                message = client_socket.recv(1024).decode()
+                message = self.recv_line(player_id) #clienttan mesaj al
                 if not message:
                     break
                 self.process_msg(player_id, message) 
@@ -77,76 +79,89 @@ class BattleshipServer:
         client_socket.close()                          
 
     def broadcast(self, message):
-        for client in self.clients:
-            client.send((message + "\n").encode())
+        for pid in range(len(self.clients)):
+            self.send(pid, message)
 
-    def send_private_msg(self, player_id, message):    
-        target_socket = self.clients[player_id]
-        target_socket.send((message + "\n").encode())  
+    def send(self, player_id, data):
+        msg = json.dumps(data, ensure_ascii=False) + "\n"
+        self.clients[player_id].sendall(msg.encode("utf-8")) 
 
     def process_msg(self, player_id, message):
-        parts = message.strip().split(":")
-        command = parts[0]
-        if command == "SHOT":
-            row, col = int(parts[1]), int(parts[2])
+        #parts = message.strip().split(":")
+        #command = parts[0]
+        # message artık string değil, dict olacak
+        msg_type = message.get("type")
+        if msg_type == "shoot":
+            row = message.get("row")
+            col = message.get("col")
             result = self.game_state.shoot(player_id, row, col)
-            self.send_private_msg(player_id, f"SHOT_RESULT:{result}")
+            if result in ("not_your_turn", "not_battle_phase", "already_shot"):
+                self.send(player_id, {"type": "shoot_error", "reason": result})
+                return
 
-            opponent_id = 1 - player_id
-            self.send_private_msg(opponent_id, f"OPPONENT_SHOT:{row}:{col}:{result}")
+            for pid in range(2):
+                self.send(pid, {
+                    "type": "shoot_result",
+                    "shooter": player_id,
+                    "row": row,
+                    "col": col,
+                    "result": result,
+                    "current_turn": self.game_state.current_turn,
+                    "my_board": self.game_state.boards[pid].get_visible_grid(False),
+                    "opponent_board": self.game_state.boards[1 - pid].get_visible_grid(True),
+                    "winner": self.game_state.winner,
+                })
 
-            if self.game_state.phase == "gameover":
-                self.broadcast(f"GAME_OVER:Player {player_id} wins!")
-                self.send_private_msg(player_id, "YOU_WIN")
-                self.send_private_msg(opponent_id, "YOU_LOSE")
+        elif msg_type == "place_ship":
+            row = message.get("row")
+            col = message.get("col")
+            length = message.get("length")
+            horizontal = message.get("horizontal")
+            success = self.game_state.place_ship(player_id, row, col, length, horizontal)
+            self.send(player_id, {
+                "type": "place_result",
+                "success": success,
+                "my_board": self.game_state.boards[player_id].get_visible_grid(False),
+            })
 
-        elif command == "PLACE":
-            row, col, length = int(parts[1]), int(parts[2]), int(parts[3])   
-            horizontal = parts[4] == "H"
-            result = self.game_state.place_ship(player_id, row, col, length, horizontal)
-            if result:
-                self.send_private_msg(player_id, "PLACE_SUCCESS")
+        elif msg_type == "confirm_placement":
+            ok = self.game_state.confirm_placement(player_id)
+            if not ok:
+                self.send(player_id, {"type": "confirm_result", "success": False,
+                                    "message": "Tüm gemileri yerleştirmediniz!"})
+                return
+            self.send(player_id, {"type": "confirm_result", "success": True})
+            if self.game_state.phase == "battle":
+                for pid in range(2):
+                    self.send(pid, {
+                        "type": "battle_start",
+                        "current_turn": self.game_state.current_turn,
+                        "my_board": self.game_state.boards[pid].get_visible_grid(False),
+                        "opponent_board": self.game_state.boards[1 - pid].get_visible_grid(True),
+                    })
             else:
-                self.send_private_msg(player_id, "PLACE_FAIL")
-                
-        elif command == "READY":
-            result = self.game_state.confirm_placement(player_id)
-            if result:
-                self.send_private_msg(player_id, "READY_SUCCESS")
-                if self.game_state.phase == "battle":
-                    self.broadcast("BATTLE_START")        
+                self.send(1 - player_id, {"type": "opponent_ready"})
+
+        elif msg_type == "play_again":
+            self.play_again_votes[player_id] = True
+            if all(self.play_again_votes):
+                self.play_again_votes = [False, False]
+                self.game_state = game_logic.GameState()
+                self.broadcast({"type": "start_placement"})
+            else:
+                self.send(1 - player_id, {"type": "opponent_wants_rematch"})   
+            
+
+
+    def recv_line(self, player_id):
+        while b"\n" not in self.buffers[player_id]:
+            data = self.clients[player_id].recv(1024)
+            if not data:
+                return None
+            self.buffers[player_id] += data
+        line, self.buffers[player_id] = self.buffers[player_id].split(b"\n", 1)
+        return json.loads(line.decode("utf-8")) 
 
 if __name__ == "__main__":
     server = BattleshipServer()
     server.start()
-
-    '''#mesaj gönderme fonksiyonu
-    def send(self, sock, msg:dict): #bir istemciye mesaj 
-        try:
-            data = json.dumps(msg) + "\n"
-            sock.sendall(data.encode())
-        except Exception as e:
-            print(f"Error sending message: {e}")
-
-    def broadcast(self, msg:dict, exclude_sock=None): #herkese mesaj
-        for sock, _ in self.clients:
-            if sock != exclude_sock:
-                self.send(sock, msg)
-
-    #istemciden gelen mesajları okuma
-    def recv_line(self, sock):
-        buffer = b""
-
-        while True:
-            try:
-                data = sock.recv(1024)
-                if not data:
-                    return None
-                buffer += data
-                if b"\n" in buffer:
-                    line, buffer = buffer.split(b"\n", 1)
-                    return json.loads(line.decode())
-            except Exception as e:
-                print(f"Error receiving message: {e}")
-                return None       '''     
-                 
