@@ -36,50 +36,42 @@ class SinyalKoprusu(QObject):
     baglanti_kesildi = pyqtSignal()
 
 
+# Stil önbelleği: durum -> stil string (tiklanabilir artık hücre bazında yok)
+_KARE_STILLER = {}
+
+def _kare_stil(durum):
+    if durum not in _KARE_STILLER:
+        renkler = {EMPTY: RENK_BOSLUK, SHIP: RENK_GEMI, MISS: RENK_ISKA, HIT: RENK_ISABET}
+        yazilar = {EMPTY: "", SHIP: "", MISS: "•", HIT: "✕"}
+        arkaplan = renkler.get(durum, RENK_BOSLUK)
+        _KARE_STILLER[durum] = (
+            f"QPushButton {{ background-color: {arkaplan}; border: 1px solid #1e3a52; "
+            f"border-radius: 3px; color: white; font-size: 13px; font-weight: bold; }}"
+            f"QPushButton:hover {{ background-color: {RENK_HOVER if durum == EMPTY else arkaplan}; }}",
+            yazilar.get(durum, "")
+        )
+    return _KARE_STILLER[durum]
+
+
 # Tahta üzerindeki her bir kare
 class Kare(QPushButton):
     def __init__(self, satir, sutun):
         super().__init__()
         self.satir = satir
         self.sutun = sutun
-        self.tiklanabilir = False
         self.durum = EMPTY
         self.setFixedSize(42, 42)
-        self.stili_guncelle()
+        stil, yazi = _kare_stil(EMPTY)
+        self.setStyleSheet(stil)
+        self.setText(yazi)
 
     def durumu_degistir(self, yeni_durum):
-        self.durum = yeni_durum
-        self.stili_guncelle()
-
-    def tiklanabilir_yap(self, aktif):
-        if self.tiklanabilir == aktif:
+        if self.durum == yeni_durum:
             return
-        self.tiklanabilir = aktif
-        self.stili_guncelle()
-
-    # Stil önbelleği: (durum, tiklanabilir) -> stil string
-    _stil_onbellegi = {}
-
-    def stili_guncelle(self):
-        renkler = {EMPTY: RENK_BOSLUK, SHIP: RENK_GEMI, MISS: RENK_ISKA, HIT: RENK_ISABET}
-        yazilar = {EMPTY: "", SHIP: "", MISS: "•", HIT: "✕"}
-        arkaplan = renkler.get(self.durum, RENK_BOSLUK)
-        hover = RENK_HOVER if self.tiklanabilir else arkaplan
-        self.setText(yazilar.get(self.durum, ""))
-        anahtar = (self.durum, self.tiklanabilir)
-        if anahtar not in Kare._stil_onbellegi:
-            Kare._stil_onbellegi[anahtar] = f"""
-            QPushButton {{
-                background-color: {arkaplan};
-                border: 1px solid #1e3a52;
-                border-radius: 3px;
-                color: white;
-                font-size: 13px;
-                font-weight: bold;
-            }}
-            QPushButton:hover {{ background-color: {hover}; }}
-        """
-        self.setStyleSheet(Kare._stil_onbellegi[anahtar])
+        self.durum = yeni_durum
+        stil, yazi = _kare_stil(yeni_durum)
+        self.setStyleSheet(stil)
+        self.setText(yazi)
 
 
 # 10x10 tahta widget'ı
@@ -88,6 +80,7 @@ class Tahta(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.aktif = False  # Tıklanabilir mi (board seviyesinde)
         self.kareler = {}
         ana_layout = QVBoxLayout(self)
         ana_layout.setSpacing(2)
@@ -118,26 +111,19 @@ class Tahta(QWidget):
             ana_layout.addLayout(satir_layout)
 
     def _kare_tiklandi(self, r, s):
-        if self.kareler[(r, s)].tiklanabilir:
+        # Sadece board aktifse ve hücre boşsa tıklanabilir
+        if self.aktif and self.kareler[(r, s)].durum == EMPTY:
             self.kare_tiklandi.emit(r, s)
 
     def tahtayi_guncelle(self, izgara):
-        self.setUpdatesEnabled(False)
         for r in range(BOARD_SIZE):
             for s in range(BOARD_SIZE):
-                if self.kareler[(r, s)].durum != izgara[r][s]:
-                    self.kareler[(r, s)].durumu_degistir(izgara[r][s])
-        self.setUpdatesEnabled(True)
-        self.update()
+                self.kareler[(r, s)].durumu_degistir(izgara[r][s])
 
     def tiklanabilir_yap(self, aktif):
+        # Sadece board seviyesinde flag güncelle — hücrelere dokunma!
+        self.aktif = aktif
         self.setCursor(QCursor(Qt.PointingHandCursor) if aktif else QCursor(Qt.ArrowCursor))
-        self.setUpdatesEnabled(False)
-        for kare in self.kareler.values():
-            hedef = aktif and kare.durum == EMPTY
-            kare.tiklanabilir_yap(hedef)
-        self.setUpdatesEnabled(True)
-        self.update()
 class BaslangicEkrani(QWidget):
     baglan_sinyali = pyqtSignal(str, int)
 
