@@ -31,6 +31,19 @@ class BattleshipServer:
         server_socket.listen()
         print(f"Server {HOST}:{PORT} üzerinde dinleniyor.")
 
+        # Heartbeat thread: her 25 saniyede tüm clientlara ping gönder
+        def heartbeat():
+            while True:
+                time.sleep(25)
+                with self.lock:
+                    player_ids = list(self.clients.keys())
+                for pid in player_ids:
+                    try:
+                        self.send(pid, {"type": "ping"})
+                    except:
+                        pass
+        threading.Thread(target=heartbeat, daemon=True).start()
+
         while True:
             client_socket, address = server_socket.accept()
             print(f"Yeni bağlantı: {address}")

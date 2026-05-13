@@ -433,7 +433,10 @@ class AnaEkran(QMainWindow):
     def mesaji_isle(self, mesaj):
         tur = mesaj.get("type")
 
-        if tur == "_connected":
+        if tur == "ping":
+            return  # Heartbeat, yoksay
+
+        elif tur == "_connected":
             self.bekleme.mesaj_guncelle("Bağlandı! Rakip bekleniyor...")
 
         elif tur == "_connect_error":
