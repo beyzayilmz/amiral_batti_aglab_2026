@@ -170,11 +170,11 @@ class OyunSonuEkrani(QWidget):
 
     def sonucu_goster(self, kazandi_mi):
         if kazandi_mi:
-            self.ui.resultLabel.setText("🏆 KAZANDIN!")
+            self.ui.resultLabel.setText("KAZANDIN!")
             self.ui.resultLabel.setStyleSheet("color: #f1c40f; font-size: 42px; font-weight: bold;")
             self.ui.subLabel.setText("Tebrikler! Tüm rakip gemilerini batırdın.")
         else:
-            self.ui.resultLabel.setText("💀 KAYBETTİN!")
+            self.ui.resultLabel.setText("KAYBETTİN!")
             self.ui.resultLabel.setStyleSheet("color: #e74c3c; font-size: 42px; font-weight: bold;")
             self.ui.subLabel.setText("Tüm gemilerin battı. Tekrar dene!")
 class YerlestirmeEkrani(QWidget):
@@ -290,10 +290,10 @@ class SavasEkrani(QWidget):
         self.rakip_tahtasi.tiklanabilir_yap(self.benim_siram)
 
         if self.benim_siram:
-            self.ui.statusLabel.setText("🎯 Senin sıran! Rakip tahtasına tıkla.")
+            self.ui.statusLabel.setText(" Senin sıran! Rakip tahtasına tıkla.")
             self.ui.statusLabel.setStyleSheet("color: #2ecc71; font-size: 13px; font-weight: bold;")
         else:
-            self.ui.statusLabel.setText("⏳ Rakibin hamlesini bekle...")
+            self.ui.statusLabel.setText(" Rakibin hamlesini bekle...")
             self.ui.statusLabel.setStyleSheet("color: #e74c3c; font-size: 13px; font-weight: bold;")
 
     def istatistik_guncelle(self, sonuc):
@@ -405,14 +405,14 @@ class AnaEkran(QMainWindow):
             if mesaj["success"]:
                 self.yerlestirme.durum_goster("✔ Gemi yerleştirildi!")
             else:
-                self.yerlestirme.durum_goster("❌ Geçersiz konum! Tekrar dene.")
+                self.yerlestirme.durum_goster(" Geçersiz konum! Tekrar dene.")
 
         elif tur == "confirm_result":
             if mesaj["success"]:
                 self.yerlestirme.durum_goster("✔ Onaylandı. Rakip bekleniyor...")
                 self.yerlestirme.ui.confirmBtn.setEnabled(False)
             else:
-                self.yerlestirme.durum_goster(f"❌ {mesaj.get('message', 'Hata')}")
+                self.yerlestirme.durum_goster(f" {mesaj.get('message', 'Hata')}")
 
         elif tur == "opponent_ready":
             self.yerlestirme.durum_goster("Rakip hazır! Sen de onayla.")
@@ -426,9 +426,9 @@ class AnaEkran(QMainWindow):
 
         elif tur == "shoot_result":
             sonuclar = {
-                "miss": "Iskalama! 💨",
-                "hit": "İSABET! 🎯",
-                "sunk": "GEMİ BATTIRILDI! 🔥",
+                "miss": "Iskalama! ",
+                "hit": "İSABET! ",
+                "sunk": "GEMİ BATTIRILDI! ",
                 "win": "OYUN BİTTİ!"
             }
             kim = "Sen" if mesaj["shooter"] == self.oyuncu_id else "Rakip"
