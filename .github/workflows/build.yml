@@ -25,7 +25,7 @@ jobs:
 
     - name: EXE üret
       run: |
-        pyinstaller --onefile --windowed --name "AmiraldBatti" --paths client client/main.py
+        pyinstaller --onefile --windowed --name "AmiraldBatti" --paths client --add-data "game_logic.py;." client/main.py
 
     - name: EXE'yi kaydet
       uses: actions/upload-artifact@v4
