@@ -12,7 +12,7 @@ import game_logic
 import time
 
 HOST = '0.0.0.0'
-PORT = 5555
+PORT = 8888
 
 class BattleshipServer:
     def __init__(self):
@@ -231,7 +231,6 @@ class BattleshipServer:
             room["buffers"][local_id] += data
         line, room["buffers"][local_id] = room["buffers"][local_id].split(b"\n", 1)
         return json.loads(line.decode("utf-8"))
-
 
 if __name__ == "__main__":
     server = BattleshipServer()
